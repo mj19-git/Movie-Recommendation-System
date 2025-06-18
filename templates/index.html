@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOVIE RECOMMENDATION SYSTEM</title>
+    
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #090909;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #f7f2f2;
+            font-size: 28px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        #searchContainer {
+            background-color: #232222;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 600px;
+        }
+
+        h2 {
+            color: #fbf8f8;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        #inputField {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #050505;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            background-color: #f5f2f2;
+        }
+
+        #submitBtn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        #submitBtn:hover {
+            background-color: #45a049;
+        }
+
+        #result {
+            margin-top: 20px;
+            color: #f9f5f5;
+            text-align: left;
+        }
+
+        /* Style each movie recommendation */
+        .movie-result {
+            background-color: #333;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .movie-result h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #E6E6E6;
+        }
+
+        .movie-result p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            color: #CCCCCC;
+        }
+        .movie-result:hover {
+            transform: translateY(-5px);
+            background-color: #45a049;
+        }
+
+        p.error {
+            color: #f44336;
+        }
+
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="searchContainer">
+        <h1>MOVIE RECOMMENDATION SYSTEM</h1>
+        <h2>Let's search your favourite movie</h2>
+        <input type="text" id="inputField" placeholder="Enter your favourite movie" />
+        <button id="submitBtn">Search</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+      document.getElementById('submitBtn').addEventListener('click', function() {
+          const query = document.getElementById('inputField').value;
+
+          fetch('/search', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ query: query })
+          })
+          .then(response => {
+              if (!response.ok) {
+                return response.json().then(errData => {
+                    throw new Error(errData.error || 'unknown error occured');
+              });
+              }
+                
+              return response.json();
+          })
+          .then(data => {
+              if (data.error) {
+                  document.getElementById('result').innerHTML = `<p class="error">Error: ${data.error}</p>`;
+              } else {
+                  // Format each movie result as a styled box
+                  const results = data.result.map(movie => `
+                      <div class="movie-result">
+                          <h3>${movie.Title}</h3>
+                          <p>Distance: ${movie.Distance.toFixed(2)}</p>
+                      </div>
+                  `).join('');
+                  document.getElementById('result').innerHTML = results;
+              }
+          })
+          .catch((error) => {
+              console.error('Error:', error);
+              document.getElementById('result').innerHTML = `<p class="error">Error: ${error.message}</p>`;
+          });
+      });
+  </script>
+  
+</body>
+</html>
